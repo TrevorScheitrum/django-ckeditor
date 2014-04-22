@@ -45,8 +45,10 @@ def upload(request):
 
     #Verify that file is a valid image
     backend = image_processing.get_backend()
+    upload_filename = get_upload_filename(upload.name, request.user)
+    resized_image = '' #upload
     try:
-        backend.image_verify(upload)
+        resized_image = backend.resize_image(upload, upload_filename)
     except IOError:
         return HttpResponse("""
                    <script type='text/javascript'>
@@ -55,9 +57,13 @@ def upload(request):
                    </script>""".format(request.GET['CKEditorFuncNum']))
 
     # Open output file in which to store upload.
+    #resized_image = backend.image_verify(upload)
     upload_filename = get_upload_filename(upload.name, request.user)
-    saved_path = default_storage.save(upload_filename, upload)
+    saved_path = default_storage.save(upload_filename, resized_image)
+    
 
+    #default_storage.delete()
+    
     if backend.should_create_thumbnail(saved_path):
         backend.create_thumbnail(saved_path)
 
