@@ -14,13 +14,17 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from ckeditor import utils
 
 THUMBNAIL_SIZE = (75, 75)
+
+if hasattr(settings, "CKEDITOR_RESIZE_RESOLUTION"):
+    PHOTO_SIZE = getattr(settings, "CKEDITOR_RESIZE_RESOLUTION")
+else:
+    PHOTO_SIZE = ()
     
 def image_verify(f):
     Image.open(f).verify()
 
 
 def resize_image(upload, file_name):
-    PHOTO_SIZE = getattr(settings, "CKEDITOR_RESIZE_RESOLUTION", None)
     resized_image_filename = file_name
     thumbnail_format = 'JPEG' 
     #file_format = thumbnail_format.split('/')[1]

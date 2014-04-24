@@ -46,10 +46,9 @@ def upload(request):
     #Verify that file is a valid image
     backend = image_processing.get_backend()
     upload_filename = get_upload_filename(upload.name, request.user)
-
-    RESIZE_IMAGE = getattr(settings, "CKEDITOR_IMAGE_RESOLUTION", None)
     
-    if RESIZE_IMAGE:
+    if hasattr(settings, "CKEDITOR_RESIZE_RESOLUTION"):
+        RESIZE_IMAGE = getattr(settings, "CKEDITOR_RESIZE_RESOLUTION")
         try:
             upload = backend.resize_image(upload, upload_filename)
         except IOError:
