@@ -46,20 +46,33 @@ def upload(request):
     #Verify that file is a valid image
     backend = image_processing.get_backend()
     upload_filename = get_upload_filename(upload.name, request.user)
-    resized_image = '' #upload
-    try:
-        resized_image = backend.resize_image(upload, upload_filename)
-    except IOError:
-        return HttpResponse("""
+
+    RESIZE_IMAGE = getattr(settings, "CKEDITOR_IMAGE_RESOLUTION", None)
+    
+    if RESIZE_IMAGE:
+        try:
+            upload = backend.resize_image(upload, upload_filename)
+        except IOError:
+            return HttpResponse("""
                    <script type='text/javascript'>
                         alert('Invalid image')
                         window.parent.CKEDITOR.tools.callFunction({0});
                    </script>""".format(request.GET['CKEditorFuncNum']))
+    else:
+        try:
+            backend.image_verify(upload)
+        except IOError:
+            return HttpResponse("""
+                   <script type='text/javascript'>
+                        alert('Invalid image')
+                        window.parent.CKEDITOR.tools.callFunction({0});
+                   </script>""".format(request.GET['CKEditorFuncNum']))
+        
 
     # Open output file in which to store upload.
     #resized_image = backend.image_verify(upload)
     upload_filename = get_upload_filename(upload.name, request.user)
-    saved_path = default_storage.save(upload_filename, resized_image)
+    saved_path = default_storage.save(upload_filename, upload)
     
 
     #default_storage.delete()
